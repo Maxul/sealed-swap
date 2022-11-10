@@ -40,8 +40,6 @@ static entry::dir_ref root_entry;
  * Initialisation
  */
 
-int backing_file = -1;
-
 static void* vram_init(fuse_conn_info* conn, struct fuse_config *cfg) {
     printf("%s %d\n", __func__, __LINE__);
     root_entry = entry::dir_t::make(nullptr, "");
@@ -66,12 +64,6 @@ static void* vram_init(fuse_conn_info* conn, struct fuse_config *cfg) {
     if (conn->capable & FUSE_CAP_SPLICE_READ)
         conn->want |= FUSE_CAP_SPLICE_READ;
 #endif
-
-    backing_file = open("/tmp/backing", O_RDWR | O_DIRECT | O_SYNC | O_CREAT, S_IRUSR | S_IWUSR);
-    if (backing_file < 0) {
-        perror("open backing file");
-        abort();
-    }
 
     std::cout << "mounted." << std::endl;
 
@@ -625,7 +617,7 @@ int main(int argc, char* argv[]) {
     fuse_opt_add_arg(&args, "-odefault_permissions");
 
     // OpenCL driver acts funky if program doesn't keep running in foreground
-    fuse_opt_add_arg(&args, "-f");
+    // fuse_opt_add_arg(&args, "-f");
 
     // single-threaded mode
     // fuse_opt_add_arg(&args, "-s");
